@@ -31,13 +31,8 @@ jobs:
       - name: Compilar MS-Auth-Service
         run: mvn compile --no-transfer-progress
 
-      - name: Ejecutar pruebas unitarias + reporte JaCoCo
-        run: mvn test --no-transfer-progress
-        env:
-          SPRING_PROFILES_ACTIVE: test
-
-      - name: Validar Quality Gate de cobertura (>= 40%)
-        run: mvn verify --no-transfer-progress -DskipTests
+      - name: Ejecutar pruebas + cobertura + validar Quality Gate (>= 40%)
+        run: mvn verify --no-transfer-progress
         env:
           SPRING_PROFILES_ACTIVE: test
 
