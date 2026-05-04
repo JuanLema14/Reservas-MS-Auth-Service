@@ -224,9 +224,9 @@ public class PasswordServiceImpl implements PasswordService {
      * Gets the user's name based on their type (client or provider).
      */
     private String getUserName(User user) {
-        if ("CLIENTE".equals(user.getTipoUsuario())) {
+        if (user.getTipoUsuario() == User.Role.CLIENTE) {
             return userRepository.findClientNameByUserId(user.getIdUsuario()).orElse("Usuario");
-        } else if ("PROVEEDOR".equals(user.getTipoUsuario())) {
+        } else if (user.getTipoUsuario() == User.Role.PROVEEDOR) {
             return userRepository.findProviderNameByUserId(user.getIdUsuario()).orElse("Usuario");
         }
         return "Usuario";
