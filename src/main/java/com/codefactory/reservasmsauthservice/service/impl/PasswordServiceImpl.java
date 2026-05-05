@@ -50,6 +50,7 @@ public class PasswordServiceImpl implements PasswordService {
     private static final Pattern UPPERCASE_PATTERN = Pattern.compile("[A-Z]");
     private static final Pattern LOWERCASE_PATTERN = Pattern.compile("[a-z]");
     private static final Pattern NUMBER_PATTERN = Pattern.compile("[0-9]");
+    private static final String DEFAULT_USER_NAME = "Usuario";
 
     @Override
     @Transactional
@@ -224,11 +225,11 @@ public class PasswordServiceImpl implements PasswordService {
      * Gets the user's name based on their type (client or provider).
      */
     private String getUserName(User user) {
-        if (user.getTipoUsuario() == User.Role.CLIENTE) {
-            return userRepository.findClientNameByUserId(user.getIdUsuario()).orElse("Usuario");
-        } else if (user.getTipoUsuario() == User.Role.PROVEEDOR) {
-            return userRepository.findProviderNameByUserId(user.getIdUsuario()).orElse("Usuario");
+        if ("CLIENTE".equals(user.getTipoUsuario())) {
+            return userRepository.findClientNameByUserId(user.getIdUsuario()).orElse(DEFAULT_USER_NAME);
+        } else if ("PROVEEDOR".equals(user.getTipoUsuario())) {
+            return userRepository.findProviderNameByUserId(user.getIdUsuario()).orElse(DEFAULT_USER_NAME);
         }
-        return "Usuario";
+        return DEFAULT_USER_NAME;
     }
 }
