@@ -9,6 +9,7 @@ import com.codefactory.reservasmsauthservice.entity.User;
 import com.codefactory.reservasmsauthservice.exception.IncorrectPasswordException;
 import com.codefactory.reservasmsauthservice.exception.InvalidPasswordException;
 import com.codefactory.reservasmsauthservice.exception.InvalidResetTokenException;
+import com.codefactory.reservasmsauthservice.exception.ResourceNotFoundException;
 import com.codefactory.reservasmsauthservice.exception.SamePasswordException;
 import com.codefactory.reservasmsauthservice.repository.PasswordResetTokenRepository;
 import com.codefactory.reservasmsauthservice.repository.RefreshTokenRepository;
@@ -27,6 +28,8 @@ import org.mockito.quality.Strictness;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.codefactory.reservasmsauthservice.entity.RefreshToken;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -287,5 +290,101 @@ class PasswordServiceImplTest {
         assertThatThrownBy(() -> passwordService.changePassword(request))
                 .isInstanceOf(org.springframework.security.authentication
                         .AuthenticationCredentialsNotFoundException.class);
+    }
+
+    // =========================================================================
+    // validatePasswordFormat — ramas sin minúscula y sin número
+    // =========================================================================
+
+    @Test
+    @DisplayName("confirmPasswordReset: contraseña sin minúscula → lanza InvalidPasswordException")
+    void confirmPasswordReset_ContrasenaSinMinuscula_LanzaInvalidPasswordException() {
+        // Arrange
+        PasswordResetConfirmDTO request = new PasswordResetConfirmDTO();
+        request.setToken("reset-token-valido");
+        request.setNewPassword("SINMINUSCULA1");
+
+        // Act & Assert
+        assertThatThrownBy(() -> passwordService.confirmPasswordReset(request))
+                .isInstanceOf(InvalidPasswordException.class)
+                .hasMessageContaining("minúscula");
+    }
+
+    @Test
+    @DisplayName("confirmPasswordReset: contraseña sin número → lanza InvalidPasswordException")
+    void confirmPasswordReset_ContrasenaSinNumero_LanzaInvalidPasswordException() {
+        // Arrange
+        PasswordResetConfirmDTO request = new PasswordResetConfirmDTO();
+        request.setToken("reset-token-valido");
+        request.setNewPassword("SinNumeroMayus#");
+
+        // Act & Assert
+        assertThatThrownBy(() -> passwordService.confirmPasswordReset(request))
+                .isInstanceOf(InvalidPasswordException.class)
+                .hasMessageContaining("número");
+    }
+
+    // =========================================================================
+    // revokeAllRefreshTokens — rama con tokens reales (forEach)
+    // =========================================================================
+
+    @Test
+    @DisplayName("confirmPasswordReset: token válido → revoca refresh tokens activos del usuario")
+    void confirmPasswordReset_TokenValido_RevocaRefreshTokens() {
+        // Arrange
+        PasswordResetConfirmDTO request = new PasswordResetConfirmDTO();
+        request.setToken("reset-token-valido");
+        request.setNewPassword("NuevaSegura#1");
+
+        RefreshToken refreshToken = RefreshToken.builder()
+                .idRefreshToken(UUID.randomUUID())
+                .user(usuario)
+                .revocado(false)
+                .build();
+
+        when(passwordResetTokenRepository.findValidByToken("reset-token-valido"))
+                .thenReturn(Optional.of(resetToken));
+        when(passwordEncoder.encode("NuevaSegura#1")).thenReturn("$2a$10$nuevoHash");
+        when(userRepository.save(usuario)).thenReturn(usuario);
+        when(refreshTokenRepository.findByUser_IdUsuarioAndRevocadoFalse(userId))
+                .thenReturn(List.of(refreshToken));
+        when(refreshTokenRepository.saveAll(anyList())).thenReturn(List.of(refreshToken));
+
+        // Act
+        passwordService.confirmPasswordReset(request);
+
+        // Assert — el refresh token quedó revocado
+        assertThat(refreshToken.getRevocado()).isTrue();
+        assertThat(refreshToken.getFechaRevocacion()).isNotNull();
+        verify(refreshTokenRepository, times(1)).saveAll(anyList());
+    }
+
+    // =========================================================================
+    // getUserName — rama PROVEEDOR
+    // =========================================================================
+
+    @Test
+    @DisplayName("requestPasswordReset: usuario PROVEEDOR → usa nombre comercial en el email")
+    void requestPasswordReset_UsuarioProveedor_UsaNombreComercialEnEmail() {
+        // Arrange
+        usuario.setTipoUsuario(User.Role.PROVEEDOR);
+
+        PasswordResetRequestDTO request = new PasswordResetRequestDTO();
+        request.setEmail("salon@bellavida.com");
+
+        when(userRepository.findByEmail("salon@bellavida.com")).thenReturn(Optional.of(usuario));
+        when(passwordResetTokenRepository
+                .findByUser_IdUsuarioAndUsadoFalseOrderByCreatedAtDesc(userId))
+                .thenReturn(Collections.emptyList());
+        when(passwordResetTokenRepository.save(any())).thenReturn(resetToken);
+        when(userRepository.findProviderNameByUserId(userId))
+                .thenReturn(Optional.of("Salón Bella Vida"));
+
+        // Act
+        passwordService.requestPasswordReset(request, "127.0.0.1");
+
+        // Assert — se envió el email con el nombre del proveedor
+        verify(emailService, times(1))
+                .sendPasswordResetEmail(eq("salon@bellavida.com"), eq("Salón Bella Vida"), anyString());
     }
 }
