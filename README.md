@@ -23,7 +23,7 @@ CodeF@ctory - Caso 15 - Plataforma de Reservas de Servicios - Microservicio de A
 ### Backend
 
 * **Java 17**
-* **Spring Boot 3.5.13**
+* **Spring Boot 3.5.14**
 * **Spring Security** (Autenticación y autorización)
 * **Spring Data JPA** (Persistencia)
 * **JWT** (JSON Web Tokens para autenticación)
@@ -435,37 +435,28 @@ PASSWORD_RESET_TOKEN_EXPIRATION_HOURS=24
 
 ## Diagramas
 
-### Diagrama del Modelo de Dominio
-[docs/domain-model.png]
-(Pendiente)
-
-### Diagrama de Arquitectura C4
-[docs/architecture-c4.png]
-(Pendiente)
-
-### Diagrama de Componentes
-[docs/components.png]
-(Pendiente)
-
-### Diagrama de Secuencia
-[docs/sequence.png]
-(Pendiente)
+### Diagrama de Paquetes y Componentes
+![Paquetes y Componentes](docs/components.png)
 
 ### Diagrama MER Lógico
 ![MER Lógico](docs/mer-diagram.png)
 
-### ADRs (Architecture Decision Records)
-[docs/adrs/]
-(Pendiente)
+### Diagrama de despliegue
+![Diagrama de despliegue](docs/deployment-diagram.png)
 
-### Documentación de API (Swagger/OpenAPI)
+## Documentación de API (Swagger/OpenAPI)
 ![Swagger](docs/swagger.png)
 
 **Ruta de acceso:** http://localhost:8081/swagger-ui/index.html#/
 
-### Variables de Entorno para Despliegue
-[docs/environment-variables.md]
-(Pendiente)
+## Variables de Entorno para Despliegue
+
+Para configurar el despliegue del microservicio, consulta la documentación detallada de variables de entorno:
+
+**[docs/environment-variables.md](docs/environment-variables.md)**
+
+También puedes usar el archivo de ejemplo como plantilla:
+**[.env.example](.env.example)** - Copia este archivo a `.env` y configura tus valores.
 
 ## Pruebas en Postman
 
