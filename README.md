@@ -1,12 +1,12 @@
 # Plataforma de Reservas de Servicios - MS-Auth-Service
 
 [![CI/CD Pipeline](https://github.com/Isa-Bedoya-UdeA/Reservas-MS-Auth-Service/actions/workflows/build.yml/badge.svg)](https://github.com/Isa-Bedoya-UdeA/Reservas-MS-Auth-Service/actions/workflows/build.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Isa-Bedoya-UdeA_Reservas-MS-Auth-Service&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Isa-Bedoya-UdeA_Reservas-MS-Auth-Service)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Isa-Bedoya-UdeA_Reservas-MS-Auth-Service&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Isa-Bedoya-UdeA_Reservas-MS-Auth-Service)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Isa-Bedoya-UdeA_Reservas-MS-Auth-Service&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Isa-Bedoya-UdeA_Reservas-MS-Auth-Service)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Isa-Bedoya-UdeA_Reservas-MS-Auth-Service&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Isa-Bedoya-UdeA_Reservas-MS-Auth-Service)
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=Isa-Bedoya-UdeA_Reservas-MS-Auth-Service&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=Isa-Bedoya-UdeA_Reservas-MS-Auth-Service)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=Isa-Bedoya-UdeA_Reservas-MS-Auth-Service&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=Isa-Bedoya-UdeA_Reservas-MS-Auth-Service)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=JuanLema14_Reservas-MS-Auth-Service&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=JuanLema14_Reservas-MS-Auth-Service)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=JuanLema14_Reservas-MS-Auth-Service&metric=bugs)](https://sonarcloud.io/summary/new_code?id=JuanLema14_Reservas-MS-Auth-Service)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=JuanLema14_Reservas-MS-Auth-Service&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=JuanLema14_Reservas-MS-Auth-Service)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=JuanLema14_Reservas-MS-Auth-Service&metric=coverage)](https://sonarcloud.io/summary/new_code?id=JuanLema14_Reservas-MS-Auth-Service)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=JuanLema14_Reservas-MS-Auth-Service&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=JuanLema14_Reservas-MS-Auth-Service)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=JuanLema14_Reservas-MS-Auth-Service&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=JuanLema14_Reservas-MS-Auth-Service)
 
 ## Descripción
 
