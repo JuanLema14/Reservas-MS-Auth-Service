@@ -14,4 +14,6 @@ public class ExternalClientDTO {
     private String email;
     private String telefono;
     private boolean emailVerificado;
+    private boolean activo;
+    private String tipoUsuario;
 }
