@@ -35,6 +35,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -502,10 +503,10 @@ class PasswordServiceImplTest {
     )
       .thenReturn(List.of(oldToken));
 
-    passwordService.requestPasswordReset(
-      new PasswordResetRequestDTO(usuario.getEmail()),
-      "127.0.0.1"
-    );
+    PasswordResetRequestDTO request = new PasswordResetRequestDTO();
+    request.setEmail(usuario.getEmail());
+
+    passwordService.requestPasswordReset(request, "127.0.0.1");
 
     assertThat(oldToken.getUsado()).isTrue();
     assertThat(oldToken.getFechaUso()).isNotNull();
