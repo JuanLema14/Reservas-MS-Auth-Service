@@ -1,5 +1,9 @@
 package com.codefactory.reservasmsauthservice.service;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import com.codefactory.reservasmsauthservice.dto.request.CreateClientRequestDTO;
 import com.codefactory.reservasmsauthservice.dto.response.ClientResponseDTO;
 import com.codefactory.reservasmsauthservice.entity.Client;
@@ -9,6 +13,8 @@ import com.codefactory.reservasmsauthservice.exception.ResourceNotFoundException
 import com.codefactory.reservasmsauthservice.mapper.ClientMapper;
 import com.codefactory.reservasmsauthservice.repository.ClientRepository;
 import com.codefactory.reservasmsauthservice.service.impl.ClientServiceImpl;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,13 +22,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 /**
  * Pruebas unitarias - MS-AUTH-SERVICE
@@ -35,165 +34,299 @@ import static org.mockito.Mockito.*;
 @DisplayName("MS-Auth - ClientServiceImpl - Creación de clientes")
 class ClientServiceImplTest {
 
-    @Mock private ClientRepository clientRepository;
-    @Mock private ClientMapper clientMapper;
-    @Mock private UserAuthService userAuthService;
+  @Mock
+  private ClientRepository clientRepository;
 
-    @InjectMocks
-    private ClientServiceImpl clientService;
+  @Mock
+  private ClientMapper clientMapper;
 
-    private UUID clienteId;
-    private CreateClientRequestDTO request;
-    private Client clienteEntity;
-    private ClientResponseDTO clienteResponse;
+  @Mock
+  private UserAuthService userAuthService;
 
-    @BeforeEach
-    void setUp() {
-        clienteId = UUID.randomUUID();
+  @InjectMocks
+  private ClientServiceImpl clientService;
 
-        request = CreateClientRequestDTO.builder()
-                .email("carlos@email.com")
-                .password("Segura#123")
-                .nombre("Carlos Pérez")
-                .telefono("3001234567")
-                .build();
+  private UUID clienteId;
+  private CreateClientRequestDTO request;
+  private Client clienteEntity;
+  private ClientResponseDTO clienteResponse;
 
-        clienteEntity = new Client();
-        clienteEntity.setIdUsuario(clienteId);
-        clienteEntity.setEmail("carlos@email.com");
-        clienteEntity.setNombre("Carlos Pérez");
-        clienteEntity.setTipoUsuario(User.Role.CLIENTE);
+  @BeforeEach
+  void setUp() {
+    clienteId = UUID.randomUUID();
 
-        clienteResponse = ClientResponseDTO.builder()
-                .idUsuario(clienteId)
-                .email("carlos@email.com")
-                .nombre("Carlos Pérez")
-                .tipoUsuario("CLIENTE")
-                .build();
-    }
+    request =
+      CreateClientRequestDTO
+        .builder()
+        .email("carlos@email.com")
+        .password("Segura#123")
+        .nombre("Carlos Pérez")
+        .telefono("3001234567")
+        .build();
 
-    // =========================================================================
-    // CP-01-001: Registro exitoso
-    // =========================================================================
+    clienteEntity = new Client();
+    clienteEntity.setIdUsuario(clienteId);
+    clienteEntity.setEmail("carlos@email.com");
+    clienteEntity.setNombre("Carlos Pérez");
+    clienteEntity.setTipoUsuario(User.Role.CLIENTE);
 
-    @Test
-    @DisplayName("CP-01-001: Crear cliente con datos válidos → retorna ClientResponseDTO")
-    void createClient_DatosValidos_RetornaClientResponseDTO() {
-        // Arrange
-        doNothing().when(userAuthService).validateEmailAndPassword(any(), any());
-        when(clientMapper.toEntity(request)).thenReturn(clienteEntity);
-        when(userAuthService.encodePassword("Segura#123")).thenReturn("$2a$10$hash");
-        when(clientRepository.save(clienteEntity)).thenReturn(clienteEntity);
-        when(clientMapper.toDto(clienteEntity)).thenReturn(clienteResponse);
+    clienteResponse =
+      ClientResponseDTO
+        .builder()
+        .idUsuario(clienteId)
+        .email("carlos@email.com")
+        .nombre("Carlos Pérez")
+        .tipoUsuario("CLIENTE")
+        .build();
+  }
 
-        // Act
-        ClientResponseDTO resultado = clientService.createClient(request);
+  // =========================================================================
+  // CP-01-001: Registro exitoso
+  // =========================================================================
 
-        // Assert
-        assertThat(resultado).isNotNull();
-        assertThat(resultado.getEmail()).isEqualTo("carlos@email.com");
-        assertThat(resultado.getTipoUsuario()).isEqualTo("CLIENTE");
-        verify(clientRepository, times(1)).save(clienteEntity);
-    }
+  @Test
+  @DisplayName(
+    "CP-01-001: Crear cliente con datos válidos → retorna ClientResponseDTO"
+  )
+  void createClient_DatosValidos_RetornaClientResponseDTO() {
+    // Arrange
+    doNothing().when(userAuthService).validateEmailAndPassword(any(), any());
+    when(clientMapper.toEntity(request)).thenReturn(clienteEntity);
+    when(userAuthService.encodePassword("Segura#123"))
+      .thenReturn("$2a$10$hash");
+    when(clientRepository.save(clienteEntity)).thenReturn(clienteEntity);
+    when(clientMapper.toDto(clienteEntity)).thenReturn(clienteResponse);
 
-    @Test
-    @DisplayName("CP-01-001b: Crear cliente → la contraseña queda hasheada antes de guardar")
-    void createClient_ContrasenaHasheadaAntesDeGuardar() {
-        // Arrange
-        doNothing().when(userAuthService).validateEmailAndPassword(any(), any());
-        when(clientMapper.toEntity(request)).thenReturn(clienteEntity);
-        when(userAuthService.encodePassword("Segura#123")).thenReturn("$2a$10$hash");
-        when(clientRepository.save(clienteEntity)).thenReturn(clienteEntity);
-        when(clientMapper.toDto(clienteEntity)).thenReturn(clienteResponse);
+    // Act
+    ClientResponseDTO resultado = clientService.createClient(request);
 
-        // Act
-        clientService.createClient(request);
+    // Assert
+    assertThat(resultado).isNotNull();
+    assertThat(resultado.getEmail()).isEqualTo("carlos@email.com");
+    assertThat(resultado.getTipoUsuario()).isEqualTo("CLIENTE");
+    verify(clientRepository, times(1)).save(clienteEntity);
+  }
 
-        // Assert — encodePassword se invocó y el hash se asignó al entity
-        verify(userAuthService, times(1)).encodePassword("Segura#123");
-        assertThat(clienteEntity.getPasswordHash()).isEqualTo("$2a$10$hash");
-    }
+  @Test
+  @DisplayName(
+    "CP-01-001b: Crear cliente → la contraseña queda hasheada antes de guardar"
+  )
+  void createClient_ContrasenaHasheadaAntesDeGuardar() {
+    // Arrange
+    doNothing().when(userAuthService).validateEmailAndPassword(any(), any());
+    when(clientMapper.toEntity(request)).thenReturn(clienteEntity);
+    when(userAuthService.encodePassword("Segura#123"))
+      .thenReturn("$2a$10$hash");
+    when(clientRepository.save(clienteEntity)).thenReturn(clienteEntity);
+    when(clientMapper.toDto(clienteEntity)).thenReturn(clienteResponse);
 
-    // =========================================================================
-    // CP-01-002: Correo duplicado → lanza EmailAlreadyExistsException
-    // =========================================================================
+    // Act
+    clientService.createClient(request);
 
-    @Test
-    @DisplayName("CP-01-002: Correo duplicado → lanza EmailAlreadyExistsException sin llegar a guardar")
-    void createClient_CorreoDuplicado_LanzaExcepcionSinGuardar() {
-        // Arrange
-        doThrow(new EmailAlreadyExistsException("El correo electrónico ya está en uso"))
-                .when(userAuthService).validateEmailAndPassword("carlos@email.com", "Segura#123");
+    // Assert — encodePassword se invocó y el hash se asignó al entity
+    verify(userAuthService, times(1)).encodePassword("Segura#123");
+    assertThat(clienteEntity.getPasswordHash()).isEqualTo("$2a$10$hash");
+  }
 
-        // Act & Assert
-        assertThatThrownBy(() -> clientService.createClient(request))
-                .isInstanceOf(EmailAlreadyExistsException.class)
-                .hasMessageContaining("ya está en uso");
+  // =========================================================================
+  // CP-01-002: Correo duplicado → lanza EmailAlreadyExistsException
+  // =========================================================================
 
-        verify(clientRepository, never()).save(any());
-    }
+  @Test
+  @DisplayName(
+    "CP-01-002: Correo duplicado → lanza EmailAlreadyExistsException sin llegar a guardar"
+  )
+  void createClient_CorreoDuplicado_LanzaExcepcionSinGuardar() {
+    // Arrange
+    doThrow(
+      new EmailAlreadyExistsException("El correo electrónico ya está en uso")
+    )
+      .when(userAuthService)
+      .validateEmailAndPassword("carlos@email.com", "Segura#123");
 
-    // =========================================================================
-    // getUserEntityByEmail
-    // =========================================================================
+    // Act & Assert
+    assertThatThrownBy(() -> clientService.createClient(request))
+      .isInstanceOf(EmailAlreadyExistsException.class)
+      .hasMessageContaining("ya está en uso");
 
-    @Test
-    @DisplayName("getUserEntityByEmail: email existente → retorna entidad User")
-    void getUserEntityByEmail_EmailExistente_RetornaUser() {
-        // Arrange
-        when(clientRepository.findByEmail("carlos@email.com")).thenReturn(Optional.of(clienteEntity));
+    verify(clientRepository, never()).save(any());
+  }
 
-        // Act
-        User resultado = clientService.getUserEntityByEmail("carlos@email.com");
+  // =========================================================================
+  // getUserEntityByEmail
+  // =========================================================================
 
-        // Assert
-        assertThat(resultado).isNotNull();
-        assertThat(resultado.getEmail()).isEqualTo("carlos@email.com");
-    }
+  @Test
+  @DisplayName("getUserEntityByEmail: email existente → retorna entidad User")
+  void getUserEntityByEmail_EmailExistente_RetornaUser() {
+    // Arrange
+    when(clientRepository.findByEmail("carlos@email.com"))
+      .thenReturn(Optional.of(clienteEntity));
 
-    @Test
-    @DisplayName("getUserEntityByEmail: email no existente → lanza ResourceNotFoundException")
-    void getUserEntityByEmail_EmailNoExistente_LanzaResourceNotFoundException() {
-        // Arrange
-        when(clientRepository.findByEmail("noexiste@email.com")).thenReturn(Optional.empty());
+    // Act
+    User resultado = clientService.getUserEntityByEmail("carlos@email.com");
 
-        // Act & Assert
-        assertThatThrownBy(() -> clientService.getUserEntityByEmail("noexiste@email.com"))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("no encontrado");
-    }
+    // Assert
+    assertThat(resultado).isNotNull();
+    assertThat(resultado.getEmail()).isEqualTo("carlos@email.com");
+  }
 
-    // =========================================================================
-    // getExternalClientById
-    // =========================================================================
+  @Test
+  @DisplayName(
+    "getUserEntityByEmail: email no existente → lanza ResourceNotFoundException"
+  )
+  void getUserEntityByEmail_EmailNoExistente_LanzaResourceNotFoundException() {
+    // Arrange
+    when(clientRepository.findByEmail("noexiste@email.com"))
+      .thenReturn(Optional.empty());
 
-    @Test
-    @DisplayName("getExternalClientById: ID existente → retorna ExternalClientDTO")
-    void getExternalClientById_IdExistente_RetornaExternalClientDTO() {
-        // Arrange
-        clienteEntity.setTelefono("3001234567");
-        clienteEntity.setEmailVerificado(true);
-        when(clientRepository.findById(clienteId)).thenReturn(Optional.of(clienteEntity));
+    // Act & Assert
+    assertThatThrownBy(() ->
+        clientService.getUserEntityByEmail("noexiste@email.com")
+      )
+      .isInstanceOf(ResourceNotFoundException.class)
+      .hasMessageContaining("no encontrado");
+  }
 
-        // Act
-        var resultado = clientService.getExternalClientById(clienteId);
+  // =========================================================================
+  // getExternalClientById
+  // =========================================================================
 
-        // Assert
-        assertThat(resultado).isNotNull();
-        assertThat(resultado.getEmail()).isEqualTo("carlos@email.com");
-        assertThat(resultado.getNombre()).isEqualTo("Carlos Pérez");
-    }
+  @Test
+  @DisplayName(
+    "getExternalClientById: ID existente → retorna ExternalClientDTO"
+  )
+  void getExternalClientById_IdExistente_RetornaExternalClientDTO() {
+    // Arrange
+    clienteEntity.setTelefono("3001234567");
+    clienteEntity.setEmailVerificado(true);
+    when(clientRepository.findById(clienteId))
+      .thenReturn(Optional.of(clienteEntity));
 
-    @Test
-    @DisplayName("getExternalClientById: ID no existente → lanza ResourceNotFoundException")
-    void getExternalClientById_IdNoExistente_LanzaResourceNotFoundException() {
-        // Arrange
-        UUID idDesconocido = UUID.randomUUID();
-        when(clientRepository.findById(idDesconocido)).thenReturn(Optional.empty());
+    // Act
+    var resultado = clientService.getExternalClientById(clienteId);
 
-        // Act & Assert
-        assertThatThrownBy(() -> clientService.getExternalClientById(idDesconocido))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("no encontrado");
-    }
+    // Assert
+    assertThat(resultado).isNotNull();
+    assertThat(resultado.getEmail()).isEqualTo("carlos@email.com");
+    assertThat(resultado.getNombre()).isEqualTo("Carlos Pérez");
+  }
+
+  @Test
+  @DisplayName(
+    "getExternalClientById: ID no existente → lanza ResourceNotFoundException"
+  )
+  void getExternalClientById_IdNoExistente_LanzaResourceNotFoundException() {
+    // Arrange
+    UUID idDesconocido = UUID.randomUUID();
+    when(clientRepository.findById(idDesconocido)).thenReturn(Optional.empty());
+
+    // Act & Assert
+    assertThatThrownBy(() -> clientService.getExternalClientById(idDesconocido))
+      .isInstanceOf(ResourceNotFoundException.class)
+      .hasMessageContaining("no encontrado");
+  }
+
+  @Test
+  @DisplayName(
+    "getExternalClientById: cliente con estado INACTIVO → activo=false"
+  )
+  void getExternalClientById_EstadoInactivo_RetornaActivoFalse() {
+    // Arrange
+    clienteEntity.setEstado("INACTIVO");
+    clienteEntity.setTelefono("3001234567");
+    when(clientRepository.findById(clienteId))
+      .thenReturn(Optional.of(clienteEntity));
+
+    // Act
+    var resultado = clientService.getExternalClientById(clienteId);
+
+    // Assert
+    assertThat(resultado).isNotNull();
+    assertThat(resultado.getActivo()).isFalse();
+  }
+
+  @Test
+  @DisplayName(
+    "getExternalClientById: cliente con tipoUsuario null → tipoUsuario null en DTO"
+  )
+  void getExternalClientById_TipoUsuarioNull_RetornaTipoUsuarioNull() {
+    // Arrange
+    clienteEntity.setTipoUsuario(null);
+    clienteEntity.setTelefono("3001234567");
+    when(clientRepository.findById(clienteId))
+      .thenReturn(Optional.of(clienteEntity));
+
+    // Act
+    var resultado = clientService.getExternalClientById(clienteId);
+
+    // Assert
+    assertThat(resultado).isNotNull();
+    assertThat(resultado.getTipoUsuario()).isNull();
+  }
+
+  @Test
+  @DisplayName(
+    "getExternalClientById: verifica todos los campos del ExternalClientDTO"
+  )
+  void getExternalClientById_VerificaTodosLosCampos() {
+    // Arrange
+    clienteEntity.setNombre("Carlos Pérez");
+    clienteEntity.setEmail("carlos@email.com");
+    clienteEntity.setTelefono("3001234567");
+    clienteEntity.setEmailVerificado(true);
+    clienteEntity.setEstado("ACTIVO");
+    clienteEntity.setTipoUsuario(User.Role.CLIENTE);
+
+    when(clientRepository.findById(clienteId))
+      .thenReturn(Optional.of(clienteEntity));
+
+    // Act
+    var resultado = clientService.getExternalClientById(clienteId);
+
+    // Assert
+    assertThat(resultado).isNotNull();
+    assertThat(resultado.getNombre()).isEqualTo("Carlos Pérez");
+    assertThat(resultado.getEmail()).isEqualTo("carlos@email.com");
+    assertThat(resultado.getTelefono()).isEqualTo("3001234567");
+    assertThat(resultado.getEmailVerificado()).isTrue();
+    assertThat(resultado.getActivo()).isTrue();
+    assertThat(resultado.getTipoUsuario()).isEqualTo("CLIENTE");
+  }
+
+  @Test
+  @DisplayName(
+    "getExternalClientById: cliente con email no verificado → emailVerificado=false"
+  )
+  void getExternalClientById_EmailNoVerificado_RetornaEmailVerificadoFalse() {
+    // Arrange
+    clienteEntity.setEmailVerificado(false);
+    clienteEntity.setTelefono("3001234567");
+    when(clientRepository.findById(clienteId))
+      .thenReturn(Optional.of(clienteEntity));
+
+    // Act
+    var resultado = clientService.getExternalClientById(clienteId);
+
+    // Assert
+    assertThat(resultado).isNotNull();
+    assertThat(resultado.getEmailVerificado()).isFalse();
+  }
+
+  @Test
+  @DisplayName("getExternalClientById: cliente con estado null → activo=false")
+  void getExternalClientById_EstadoNull_RetornaActivoFalse() {
+    // Arrange
+    clienteEntity.setEstado(null);
+    clienteEntity.setTelefono("3001234567");
+    when(clientRepository.findById(clienteId))
+      .thenReturn(Optional.of(clienteEntity));
+
+    // Act
+    var resultado = clientService.getExternalClientById(clienteId);
+
+    // Assert
+    assertThat(resultado).isNotNull();
+    assertThat(resultado.getActivo()).isFalse();
+  }
 }
