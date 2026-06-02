@@ -17,4 +17,6 @@ public class ExternalProviderDTO {
     private String telefonoContacto;
     private UUID idCategoria;
     private String direccion;
+    private boolean activo;
+    private String tipoUsuario;
 }
