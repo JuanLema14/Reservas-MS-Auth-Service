@@ -55,6 +55,8 @@ public class ClientServiceImpl implements ClientService {
                 .email(client.getEmail())
                 .telefono(client.getTelefono())
                 .emailVerificado(client.getEmailVerificado())
+                .activo("ACTIVO".equals(client.getEstado()))
+                .tipoUsuario(client.getTipoUsuario() != null ? client.getTipoUsuario().name() : null)
                 .build();
     }
 }

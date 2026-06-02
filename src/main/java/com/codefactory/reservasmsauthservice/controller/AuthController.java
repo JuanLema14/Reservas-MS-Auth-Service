@@ -15,7 +15,6 @@ import com.codefactory.reservasmsauthservice.service.AuthService;
 import com.codefactory.reservasmsauthservice.service.LoginService;
 import com.codefactory.reservasmsauthservice.service.PasswordService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -25,9 +24,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 
 /**
  * Controlador de autenticación.
@@ -44,11 +47,12 @@ public class AuthController {
     private final LoginService loginService;
     private final PasswordService passwordService;
 
+    private static final URI VERIFY_EMAIL_URI = URI.create("/api/auth/verify-email");
+    private static final URI LOGIN_URI = URI.create("/api/auth/login");
+    private static final URI CONFIRM_RESET_URI = URI.create("/api/auth/password-reset/confirm");
+
     /**
      * Registra un nuevo cliente.
-     *
-     * @param request Datos del nuevo cliente (email, contraseña, nombre, etc)
-     * @return Token de verificación de email a enviar a la cuenta del usuario
      */
     @PostMapping("/register/client")
     @Operation(
@@ -66,16 +70,17 @@ public class AuthController {
         @ApiResponse(responseCode = "409", description = "El email ya está registrado")
     })
     @SecurityRequirements
-    public ResponseEntity<?> registerClient(@Valid @RequestBody CreateClientRequestDTO request) {
+    public ResponseEntity<EntityModel<RegistrationResponseDTO>> registerClient(
+            @Valid @RequestBody CreateClientRequestDTO request) {
         RegistrationResponseDTO response = authService.registerClient(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        EntityModel<RegistrationResponseDTO> entityModel = EntityModel.of(response,
+            Link.of(VERIFY_EMAIL_URI.toString()).withRel("verify-email"),
+            Link.of(LOGIN_URI.toString()).withRel("login"));
+        return new ResponseEntity<>(entityModel, HttpStatus.CREATED);
     }
 
     /**
      * Registra un nuevo proveedor.
-     *
-     * @param request Datos del nuevo proveedor (email, contraseña, nombre, etc)
-     * @return Token de verificación de email a enviar a la cuenta del usuario
      */
     @PostMapping("/register/provider")
     @Operation(
@@ -93,17 +98,17 @@ public class AuthController {
         @ApiResponse(responseCode = "409", description = "El email ya está registrado")
     })
     @SecurityRequirements
-    public ResponseEntity<?> registerProvider(@Valid @RequestBody CreateProviderRequestDTO request) {
+    public ResponseEntity<EntityModel<RegistrationResponseDTO>> registerProvider(
+            @Valid @RequestBody CreateProviderRequestDTO request) {
         RegistrationResponseDTO response = authService.registerProvider(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        EntityModel<RegistrationResponseDTO> entityModel = EntityModel.of(response,
+            Link.of(VERIFY_EMAIL_URI.toString()).withRel("verify-email"),
+            Link.of(LOGIN_URI.toString()).withRel("login"));
+        return new ResponseEntity<>(entityModel, HttpStatus.CREATED);
     }
 
     /**
      * Inicia sesión de usuario.
-     *
-     * @param request Email y contraseña
-     * @param httpRequest Request HTTP para capturar IP y User-Agent
-     * @return Access token, refresh token y datos del usuario
      */
     @PostMapping("/login")
     @Operation(
@@ -129,9 +134,6 @@ public class AuthController {
 
     /**
      * Renueva el access token usando un refresh token.
-     *
-     * @param request Refresh token
-     * @return Nuevo access token y refresh token rotado
      */
     @PostMapping("/refresh")
     @Operation(
@@ -156,9 +158,6 @@ public class AuthController {
 
     /**
      * Cierra sesión revocando el refresh token.
-     *
-     * @param request Refresh token a revocar
-     * @return 200 OK
      */
     @PostMapping("/logout")
     @Operation(
@@ -181,11 +180,6 @@ public class AuthController {
 
     /**
      * Solicita el restablecimiento de contraseña.
-     * Envía un email con un enlace para restablecer la contraseña.
-     *
-     * @param request Email del usuario
-     * @param httpRequest Request HTTP para capturar IP
-     * @return 200 OK
      */
     @PostMapping("/password-reset/request")
     @Operation(
@@ -202,18 +196,19 @@ public class AuthController {
         @ApiResponse(responseCode = "429", description = "Demasiadas solicitudes (rate limiting)")
     })
     @SecurityRequirements
-    public ResponseEntity<?> requestPasswordReset(@Valid @RequestBody PasswordResetRequestDTO request,
-                                                  HttpServletRequest httpRequest) {
+    public ResponseEntity<EntityModel<MessageResponseDTO>> requestPasswordReset(
+            @Valid @RequestBody PasswordResetRequestDTO request,
+            HttpServletRequest httpRequest) {
         String ipAddress = httpRequest.getRemoteAddr();
         passwordService.requestPasswordReset(request, ipAddress);
-        return ResponseEntity.ok(new MessageResponseDTO("Si el email existe en nuestro sistema, recibirás un enlace para restablecer tu contraseña"));
+        MessageResponseDTO message = new MessageResponseDTO("Si el email existe en nuestro sistema, recibirás un enlace para restablecer tu contraseña");
+        EntityModel<MessageResponseDTO> entityModel = EntityModel.of(message,
+            Link.of(CONFIRM_RESET_URI.toString()).withRel("confirm-reset"));
+        return ResponseEntity.ok(entityModel);
     }
 
     /**
      * Confirma el restablecimiento de contraseña con un token válido.
-     *
-     * @param request Token y nueva contraseña
-     * @return 200 OK con mensaje de éxito
      */
     @PostMapping("/password-reset/confirm")
     @Operation(
@@ -230,17 +225,16 @@ public class AuthController {
         @ApiResponse(responseCode = "400", description = "Token inválido o expirado")
     })
     @SecurityRequirements
-    public ResponseEntity<?> confirmPasswordReset(@Valid @RequestBody PasswordResetConfirmDTO request) {
+    public ResponseEntity<EntityModel<MessageResponseDTO>> confirmPasswordReset(
+            @Valid @RequestBody PasswordResetConfirmDTO request) {
         MessageResponseDTO response = passwordService.confirmPasswordReset(request);
-        return ResponseEntity.ok(response);
+        EntityModel<MessageResponseDTO> entityModel = EntityModel.of(response,
+            Link.of(LOGIN_URI.toString()).withRel("login"));
+        return ResponseEntity.ok(entityModel);
     }
 
     /**
      * Cambia la contraseña de un usuario autenticado.
-     * Requiere JWT válido en el header Authorization.
-     *
-     * @param request Contraseña actual y nueva contraseña
-     * @return 200 OK con mensaje de éxito
      */
     @PostMapping("/change-password")
     @Operation(
@@ -257,8 +251,9 @@ public class AuthController {
         @ApiResponse(responseCode = "400", description = "Contraseña actual incorrecta"),
         @ApiResponse(responseCode = "401", description = "No autenticado")
     })
-    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordDTO request) {
+    public ResponseEntity<EntityModel<MessageResponseDTO>> changePassword(
+            @Valid @RequestBody ChangePasswordDTO request) {
         MessageResponseDTO response = passwordService.changePassword(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(EntityModel.of(response));
     }
 }

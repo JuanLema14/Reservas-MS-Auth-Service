@@ -71,6 +71,8 @@ public class ProviderServiceImpl implements ProviderService {
                 .telefonoContacto(provider.getTelefonoContacto())
                 .idCategoria(provider.getIdCategoria())
                 .direccion(provider.getDireccion())
+                .activo("ACTIVO".equals(provider.getEstado()))
+                .tipoUsuario(provider.getTipoUsuario() != null ? provider.getTipoUsuario().name() : null)
                 .build();
     }
 }

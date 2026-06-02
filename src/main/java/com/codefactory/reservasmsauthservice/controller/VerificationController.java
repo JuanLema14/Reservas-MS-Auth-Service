@@ -13,8 +13,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 /**
  * Controlador de verificación de email.
@@ -30,9 +33,6 @@ public class VerificationController {
 
     /**
      * Verifica el email del usuario usando el token recibido.
-     * 
-     * @param request DTO con el token de verificación
-     * @return Confirmación de la verificación exitosa
      */
     @PostMapping("/verify-email")
     @Operation(
@@ -50,17 +50,16 @@ public class VerificationController {
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
     @SecurityRequirements
-    public ResponseEntity<?> verifyEmail(@Valid @RequestBody VerifyEmailRequestDTO request) {
+    public ResponseEntity<EntityModel<VerificationResponseDTO>> verifyEmail(
+            @Valid @RequestBody VerifyEmailRequestDTO request) {
         VerificationResponseDTO response = verificationService.verifyEmail(request.getToken());
-        return ResponseEntity.ok(response);
+        EntityModel<VerificationResponseDTO> entityModel = EntityModel.of(response,
+            linkTo(methodOn(VerificationController.class).resendVerificationEmail(null)).withRel("resend-verification-email"));
+        return ResponseEntity.ok(entityModel);
     }
 
     /**
      * Reenvía un nuevo token de verificación al email del usuario.
-     * Útil si el token anterior ha expirado.
-     * 
-     * @param email Email del usuario
-     * @return Confirmación del reenvío
      */
     @PostMapping("/resend-verification-email")
     @Operation(
@@ -73,10 +72,12 @@ public class VerificationController {
         @ApiResponse(responseCode = "400", description = "Email ya verificado")
     })
     @SecurityRequirements
-    public ResponseEntity<?> resendVerificationEmail(
+    public ResponseEntity<EntityModel<VerificationResponseDTO>> resendVerificationEmail(
         @Parameter(description = "Email del usuario", required = true, example = "usuario@ejemplo.com")
         @RequestParam String email) {
         VerificationResponseDTO response = verificationService.resendVerificationToken(email);
-        return ResponseEntity.ok(response);
+        EntityModel<VerificationResponseDTO> entityModel = EntityModel.of(response,
+            linkTo(methodOn(VerificationController.class).verifyEmail(null)).withRel("verify-email"));
+        return ResponseEntity.ok(entityModel);
     }
 }

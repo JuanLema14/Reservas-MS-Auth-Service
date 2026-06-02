@@ -11,10 +11,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -34,8 +37,11 @@ public class UserController {
         @ApiResponse(responseCode = "200", description = "Cliente encontrado", content = @Content(schema = @Schema(implementation = ExternalClientDTO.class))),
         @ApiResponse(responseCode = "404", description = "Cliente no encontrado")
     })
-    public ResponseEntity<ExternalClientDTO> getClientById(@PathVariable("id") UUID id) {
-        return ResponseEntity.ok(clientService.getExternalClientById(id));
+    public ResponseEntity<EntityModel<ExternalClientDTO>> getClientById(@PathVariable("id") UUID id) {
+        ExternalClientDTO client = clientService.getExternalClientById(id);
+        EntityModel<ExternalClientDTO> entityModel = EntityModel.of(client,
+            linkTo(methodOn(UserController.class).getClientById(id)).withSelfRel());
+        return ResponseEntity.ok(entityModel);
     }
 
     @GetMapping("/providers/{id}")
@@ -47,7 +53,10 @@ public class UserController {
         @ApiResponse(responseCode = "200", description = "Proveedor encontrado", content = @Content(schema = @Schema(implementation = ExternalProviderDTO.class))),
         @ApiResponse(responseCode = "404", description = "Proveedor no encontrado")
     })
-    public ResponseEntity<ExternalProviderDTO> getProviderById(@PathVariable("id") UUID id) {
-        return ResponseEntity.ok(providerService.getExternalProviderById(id));
+    public ResponseEntity<EntityModel<ExternalProviderDTO>> getProviderById(@PathVariable("id") UUID id) {
+        ExternalProviderDTO provider = providerService.getExternalProviderById(id);
+        EntityModel<ExternalProviderDTO> entityModel = EntityModel.of(provider,
+            linkTo(methodOn(UserController.class).getProviderById(id)).withSelfRel());
+        return ResponseEntity.ok(entityModel);
     }
 }

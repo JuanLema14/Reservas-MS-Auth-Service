@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -14,6 +15,7 @@ import org.thymeleaf.context.Context;
 /**
  * Implementation of EmailService.
  * Sends verification emails using JavaMailSender and Thymeleaf templates.
+ * Email sending is ASYNC to not block the main request thread.
  */
 @Service
 @RequiredArgsConstructor
@@ -33,7 +35,9 @@ public class EmailServiceImpl implements EmailService {
     private String emailUsername;
 
     @Override
+    @Async
     public void sendVerificationEmail(String to, String name, String token) {
+        log.info("[ASYNC] Iniciando envio de email de verificacion a: {}", to);
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -54,16 +58,18 @@ public class EmailServiceImpl implements EmailService {
 
             // Send email
             javaMailSender.send(message);
-            log.info("Verification email sent successfully to: {}", to);
+            log.info("[ASYNC] Email de verificacion enviado exitosamente a: {}", to);
 
         } catch (Exception e) {
-            log.error("Failed to send verification email to: {}", to, e);
-            throw new RuntimeException("Failed to send verification email: " + e.getMessage(), e);
+            log.error("[ASYNC] Error al enviar email de verificacion a: {}", to, e);
+            // Don't throw - just log the error
         }
     }
 
     @Override
+    @Async
     public void sendPasswordResetEmail(String to, String name, String token) {
+        log.info("[ASYNC] Iniciando envio de email de reset de password a: {}", to);
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -84,16 +90,18 @@ public class EmailServiceImpl implements EmailService {
 
             // Send email
             javaMailSender.send(message);
-            log.info("Password reset email sent successfully to: {}", to);
+            log.info("[ASYNC] Email de reset de password enviado exitosamente a: {}", to);
 
         } catch (Exception e) {
-            log.error("Failed to send password reset email to: {}", to, e);
-            throw new RuntimeException("Failed to send password reset email: " + e.getMessage(), e);
+            log.error("[ASYNC] Error al enviar email de reset de password a: {}", to, e);
+            // Don't throw - just log the error
         }
     }
 
     @Override
+    @Async
     public void sendPasswordChangeConfirmationEmail(String to, String name) {
+        log.info("[ASYNC] Iniciando envio de email de confirmacion de cambio de password a: {}", to);
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -114,11 +122,11 @@ public class EmailServiceImpl implements EmailService {
 
             // Send email
             javaMailSender.send(message);
-            log.info("Password change confirmation email sent successfully to: {}", to);
+            log.info("[ASYNC] Email de confirmacion de cambio de password enviado exitosamente a: {}", to);
 
         } catch (Exception e) {
-            log.error("Failed to send password change confirmation email to: {}", to, e);
-            throw new RuntimeException("Failed to send password change confirmation email: " + e.getMessage(), e);
+            log.error("[ASYNC] Error al enviar email de confirmacion de cambio de password a: {}", to, e);
+            // Don't throw - just log the error
         }
     }
 }

@@ -435,6 +435,9 @@ PASSWORD_RESET_TOKEN_EXPIRATION_HOURS=24
 
 ## Diagramas
 
+### Diseño Arquitectonico
+![Diseño Arquitectonico](docs/architecture.png)
+
 ### Diagrama de Paquetes y Componentes
 ![Paquetes y Componentes](docs/components.png)
 
@@ -457,6 +460,20 @@ Para configurar el despliegue del microservicio, consulta la documentación deta
 
 También puedes usar el archivo de ejemplo como plantilla:
 **[.env.example](.env.example)** - Copia este archivo a `.env` y configura tus valores.
+
+## Secrets para Kubernetes
+
+Para el despliegue en Kubernetes, consulta la documentación de secrets:
+
+**[docs/kubernetes-secrets.md](docs/kubernetes-secrets.md)**
+
+## Observabilidad: Kubernetes, ArgoCD, Prometheus y Grafana
+
+**[docs/observability.md](docs/observability.md)** — Guía paso a paso para desplegar y monitorear el microservicio.
+
+## HATEOAS
+
+**[docs/hateoas.md](docs/hateoas.md)** — Implementación de HATEOAS (Hypermedia as the Engine of Application State) con enlaces `_links` en todas las respuestas REST para navegación discoverable.
 
 ## Pruebas en Postman
 
