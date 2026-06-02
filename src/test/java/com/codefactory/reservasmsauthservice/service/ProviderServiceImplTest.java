@@ -327,7 +327,7 @@ class ProviderServiceImplTest {
 
     // Assert
     assertThat(resultado).isNotNull();
-    assertThat(resultado.getActivo()).isFalse();
+    assertThat(resultado.isActivo()).isFalse(); // Cambiado de getActivo() a isActivo()
   }
 
   @Test
@@ -384,7 +384,7 @@ class ProviderServiceImplTest {
     assertThat(resultado.getTelefonoContacto()).isEqualTo("3001234567");
     assertThat(resultado.getIdCategoria()).isEqualTo(categoriaId);
     assertThat(resultado.getDireccion()).isEqualTo("Calle 10 #20-30");
-    assertThat(resultado.getActivo()).isTrue();
+    assertThat(resultado.isActivo()).isTrue(); // Cambiado
     assertThat(resultado.getTipoUsuario()).isEqualTo("PROVEEDOR");
   }
 }

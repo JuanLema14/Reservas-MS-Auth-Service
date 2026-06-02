@@ -243,7 +243,7 @@ class ClientServiceImplTest {
 
     // Assert
     assertThat(resultado).isNotNull();
-    assertThat(resultado.getActivo()).isFalse();
+    assertThat(resultado.isActivo()).isFalse(); // Cambiado de getActivo() a isActivo()
   }
 
   @Test
@@ -289,8 +289,8 @@ class ClientServiceImplTest {
     assertThat(resultado.getNombre()).isEqualTo("Carlos Pérez");
     assertThat(resultado.getEmail()).isEqualTo("carlos@email.com");
     assertThat(resultado.getTelefono()).isEqualTo("3001234567");
-    assertThat(resultado.getEmailVerificado()).isTrue();
-    assertThat(resultado.getActivo()).isTrue();
+    assertThat(resultado.isEmailVerificado()).isTrue(); // Cambiado
+    assertThat(resultado.isActivo()).isTrue(); // Cambiado
     assertThat(resultado.getTipoUsuario()).isEqualTo("CLIENTE");
   }
 
@@ -310,7 +310,7 @@ class ClientServiceImplTest {
 
     // Assert
     assertThat(resultado).isNotNull();
-    assertThat(resultado.getEmailVerificado()).isFalse();
+    assertThat(resultado.isEmailVerificado()).isFalse(); // Cambiado
   }
 
   @Test
@@ -327,6 +327,6 @@ class ClientServiceImplTest {
 
     // Assert
     assertThat(resultado).isNotNull();
-    assertThat(resultado.getActivo()).isFalse();
+    assertThat(resultado.isActivo()).isFalse(); // Cambiado
   }
 }
