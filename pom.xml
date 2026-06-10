@@ -1,30 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.5.14</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath /> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.codefactory</groupId>
     <artifactId>Reservas-MS-Auth-Service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Reservas-MS-Auth-Service</name>
     <description>CodeF@ctory - Caso 15 - Plataforma de Reservas de Servicios - Microservicio de Autenticación y Usuarios</description>
-    <url/>
+    <url />
     <licenses>
-        <license/>
+        <license />
     </licenses>
     <developers>
-        <developer/>
+        <developer />
     </developers>
     <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
+        <connection />
+        <developerConnection />
+        <tag />
+        <url />
     </scm>
     <properties>
         <java.version>17</java.version>
@@ -53,6 +54,7 @@
             **/service/impl/EmailServiceImpl.java
         </sonar.exclusions>
         <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <cucumber.version>7.14.0</cucumber.version>
     </properties>
     <dependencies>
         <!-- Spring Boot Starters -->
@@ -215,6 +217,30 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Cucumber -->
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-spring</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit-platform-engine</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -286,8 +312,10 @@
                         <exclude>com/codefactory/reservasmsauthservice/client/**</exclude>
                         <exclude>com/codefactory/reservasmsauthservice/dto/**</exclude>
                         <exclude>com/codefactory/reservasmsauthservice/entity/**</exclude>
-                        <exclude>com/codefactory/reservasmsauthservice/ReservasMsAuthServiceApplication.class</exclude>
-                        <exclude>com/codefactory/reservasmsauthservice/service/impl/EmailServiceImpl.class</exclude>
+                        <exclude>
+                            com/codefactory/reservasmsauthservice/ReservasMsAuthServiceApplication.class</exclude>
+                        <exclude>
+                            com/codefactory/reservasmsauthservice/service/impl/EmailServiceImpl.class</exclude>
                     </excludes>
                 </configuration>
                 <executions>

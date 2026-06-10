@@ -11,6 +11,7 @@ import com.codefactory.reservasmsauthservice.exception.CategoryNotFoundException
 import com.codefactory.reservasmsauthservice.exception.ResourceNotFoundException;
 import com.codefactory.reservasmsauthservice.mapper.ProviderMapper;
 import com.codefactory.reservasmsauthservice.repository.ProviderRepository;
+import com.codefactory.reservasmsauthservice.service.EmailService;
 import com.codefactory.reservasmsauthservice.service.ProviderService;
 import com.codefactory.reservasmsauthservice.service.UserAuthService;
 import feign.FeignException;
@@ -28,6 +29,7 @@ public class ProviderServiceImpl implements ProviderService {
     private final ProviderMapper providerMapper;
     private final UserAuthService userAuthService;
     private final CatalogClient catalogClient;
+    private final EmailService emailService; // agregado para enviar correo de verificación
 
     @Override
     @Transactional
@@ -39,10 +41,10 @@ public class ProviderServiceImpl implements ProviderService {
         try {
             CategoryResponseDTO category = catalogClient.getCategoryById(request.getIdCategoria());
             if (category == null || !Boolean.TRUE.equals(category.getActiva())) {
-                throw new CategoryNotFoundException("La categoría con ID '" + request.getIdCategoria() + "' no existe o no está activa");
+                throw new CategoryNotFoundException("La categoría seleccionada no existe o no está activa");
             }
         } catch (FeignException e) {
-            throw new CategoryNotFoundException("La categoría con ID '" + request.getIdCategoria() + "' no existe en el servicio de catálogo");
+            throw new CategoryNotFoundException("La categoría seleccionada no existe o no está activa");
         }
 
         Provider provider = providerMapper.toEntity(request);
@@ -50,6 +52,15 @@ public class ProviderServiceImpl implements ProviderService {
         provider.setPasswordHash(userAuthService.encodePassword(request.getPassword()));
 
         Provider savedProvider = providerRepository.save(provider);
+
+        // Enviar correo de verificación al proveedor recién registrado
+        String verificationToken = UUID.randomUUID().toString();
+        emailService.sendVerificationEmail(
+                savedProvider.getEmail(),
+                savedProvider.getNombreComercial(),
+                verificationToken
+        );
+
         return providerMapper.toDto(savedProvider);
     }
 

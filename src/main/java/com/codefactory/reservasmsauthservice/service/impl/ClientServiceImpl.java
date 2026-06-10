@@ -5,6 +5,7 @@ import com.codefactory.reservasmsauthservice.dto.request.CreateClientRequestDTO;
 import com.codefactory.reservasmsauthservice.dto.response.ClientResponseDTO;
 import com.codefactory.reservasmsauthservice.entity.Client;
 import com.codefactory.reservasmsauthservice.entity.User;
+import com.codefactory.reservasmsauthservice.exception.BusinessException;
 import com.codefactory.reservasmsauthservice.exception.ResourceNotFoundException;
 import com.codefactory.reservasmsauthservice.mapper.ClientMapper;
 import com.codefactory.reservasmsauthservice.repository.ClientRepository;
@@ -27,8 +28,12 @@ public class ClientServiceImpl implements ClientService {
     @Override
     @Transactional
     public ClientResponseDTO createClient(CreateClientRequestDTO request) {
-        // Validar email y contraseña (centralizado en UserAuthService)
+        // AGREGAR validación:
+        if (request.getNombre() == null || request.getNombre().isBlank()) {
+            throw new BusinessException("El nombre es obligatorio");
+        }
         userAuthService.validateEmailAndPassword(request.getEmail(), request.getPassword());
+    
 
         Client client = clientMapper.toEntity(request);
         // Codificar contraseña (centralizado en UserAuthService)
